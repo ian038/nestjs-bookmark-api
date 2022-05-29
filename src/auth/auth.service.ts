@@ -14,10 +14,7 @@ export class AuthService {
         const hash = await argon.hash(dto.password)
         try {
             const user = await this.prisma.user.create({
-                data: {
-                    email: dto.email,
-                    hash
-                }
+                data: { email: dto.email, hash }
             })
             delete user.hash
             return this.signToken(user.id, user.email)
@@ -33,9 +30,7 @@ export class AuthService {
 
     async signin(dto: AuthDto) {
         const user = await this.prisma.user.findUnique({
-            where: {
-                email: dto.email
-            }
+            where: { email: dto.email }
         })
 
         if (!user) {
@@ -51,10 +46,7 @@ export class AuthService {
     }
 
     async signToken(userId: Number, email: String): Promise<{ access_token: string }> {
-        const payload = {
-            sub: userId,
-            email
-        }
+        const payload = { sub: userId, email }
         const secret = this.config.get('JWT_SECRET')
 
         const token = await this.jwt.signAsync(payload, {

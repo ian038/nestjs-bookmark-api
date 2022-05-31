@@ -19,6 +19,7 @@ export class BookmarkController {
         return this.bookmarkService.getBookmarkById(userId, bookmarkId);
     }
 
+    @HttpCode(HttpStatus.CREATED)
     @Post()
     createBookmark(@GetUser('id') userId: number, @Body() dto: CreateBookmarkDto) {
         return this.bookmarkService.createBookmark(userId, dto)

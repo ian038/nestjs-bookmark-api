@@ -5,7 +5,7 @@ import { AppModule } from '../src/app.module'
 import * as pactum from 'pactum'
 import { AuthDto } from '../src/auth/dto'
 import { EditUserDto } from '../src/user/dto'
-import { CreateBookmarkDto } from '../src/bookmark/dto'
+import { CreateBookmarkDto, EditBookmarkDto } from '../src/bookmark/dto'
 
 describe('App end to end', () => {
   let app: INestApplication
@@ -94,6 +94,7 @@ describe('App end to end', () => {
     describe('Get empty bookmarks', () => {
       it('shoult get bookmarks', () => {
         return pactum.spec().get('/bookmarks').withHeaders({ Authorization: 'Bearer $S{userAt}' }).expectStatus(200)
+          .expectJsonLength(0)
       })
     })
 
@@ -122,8 +123,26 @@ describe('App end to end', () => {
       })
     })
 
-    describe('Edit bookmark', () => { })
+    describe('Edit bookmark', () => {
+      const dto: EditBookmarkDto = {
+        title: 'Kubernetes Course - Full Beginners Tutorial (Containerize Your Apps!)',
+        description: 'Learn how to use Kubernetes in this complete course. Kubernetes makes it possible to containerize applications and simplifies app deployment to production.',
+      }
+      it('should edit bookmark', () => {
+        return pactum.spec().put('/bookmarks/{id}').withPathParams('id', '$S{bookmarkId}').withHeaders({ Authorization: 'Bearer $S{userAt}' })
+          .withBody(dto).expectStatus(200).expectBodyContains(dto.title).expectBodyContains(dto.description)
+      })
+    })
 
-    describe('Delete bookmark', () => { })
+    describe('Delete bookmark', () => {
+      it('should delete bookmark', () => {
+        return pactum.spec().delete('/bookmarks/{id}').withPathParams('id', '$S{bookmarkId}').withHeaders({ Authorization: 'Bearer $S{userAt}' })
+          .expectStatus(204)
+      })
+      it('should get empty bookmarks', () => {
+        return pactum.spec().get('/bookmarks').withHeaders({ Authorization: 'Bearer $S{userAt}' }).expectStatus(200)
+          .expectJsonLength(0)
+      })
+    })
   })
 })
